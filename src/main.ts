@@ -1,9 +1,25 @@
 import { ErrorMapper } from "utils/ErrorMapper";
+import { Role, randomName} from "utils";
+import { control } from "creepController"
 
-// When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
-// This utility uses source maps to get the line numbers and file names of the original, TS source code
-export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+const main = ErrorMapper.wrapLoop(() => {
+
+  Object.values(Game.spawns).forEach( (spawn) => {
+    spawn.spawnCreep(
+      [WORK, CARRY, MOVE],
+      randomName(),
+      {
+        memory: {
+          role: Role.harvester,
+          working : false},
+      }
+    );
+  });
+
+  Object.values(Game.creeps).forEach( (creep) => {
+
+    control(creep);
+  });
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
@@ -12,3 +28,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 });
+
+module.exports.loop = main;
